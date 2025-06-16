@@ -2,10 +2,10 @@
  This project is a full-stack web application designed to demonstrate a modern, AI-enhanced documentation workflow. It provides a user-friendly dashboard where raw text or uploaded files (.txt, .md) can be instantly transformed into high-quality, standards-compliant DITA XML. The application leverages a Python Flask backend for processing and a dynamic frontend to visualize the results, including AI-generated metadata and content analysis.
 
 ## Live Demo Walkthrough
-*Figure 1: The application's clean input interface, where a user can paste raw text or upload a .txt or .md file for processing.*
+*Figure 1: The application's input interface, allows user to paste raw text or upload a .txt or .md file for processing.*
 ![AI Metadata and Chart Output](https://raw.githubusercontent.com/sephcodes66/Interactive-AI-DITA-Dashboard/main/assets/project_interface.png)
 #
-*Figure 2: The top half of the results dashboard, displaying the AI-generated short description, index keywords, and a Plotly chart that visually analyzes the content.*
+*Figure 2: Displaying the AI-generated short description, index keywords, and a Plotly chart that visually analyzes the content.*
 ![AI Metadata and Chart Output](https://raw.githubusercontent.com/sephcodes66/Interactive-AI-DITA-Dashboard/main/assets/output1.png)
 #
 *Figure 3: The final output card, presenting the well-structured and standards-compliant DITA XML, automatically improved and enriched by the AI.*
