@@ -1,0 +1,8 @@
+Flask
+python-dotenv
+google-generativeai
+plotly
+requests
+lxml
+markdown-it-py
+werkzeug

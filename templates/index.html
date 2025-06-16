@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI DITA Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-xml.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            font-family: 'Fira Mono', 'Consolas', 'Courier New', monospace;
+            font-size: 1.05rem;
+            white-space: pre;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 600px;
+            min-height: 200px;
+            border: 1px solid #334155;
+            line-height: 1.8;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .keyword-pill {
+            background-color: #334155; color: #cbd5e1; padding: 0.25rem 0.75rem;
+            border-radius: 9999px; font-size: 0.8rem; font-weight: 500;
+        }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-white">Interactive AI DITA Dashboard</h1>
+            <p class="mt-2 text-lg text-gray-400">Generate high-quality DITA XML from raw text with AI-powered analysis.</p>
+        </header>
+
+        <main class="space-y-8">
+            <!-- Input Card -->
+            <div class="bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Input Text</h2>
+                <textarea id="sourceText" rows="10" class="w-full bg-gray-700 border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-blue-500" placeholder="Paste your raw text here..."></textarea>
+                <div class="flex flex-col md:flex-row md:items-center gap-4 mt-4">
+                  <label class="text-gray-300">Or upload a .txt or .md file:</label>
+                  <input type="file" id="fileInput" accept=".txt,.md" class="bg-gray-700 border-gray-600 rounded-md px-3 py-2 text-white" />
+                </div>
+                <div id="statusArea" class="mt-4 text-blue-400 text-center font-semibold"></div>
+                <div class="mt-6 text-center">
+                    <button id="processBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform transform hover:scale-105 disabled:bg-gray-500 disabled:cursor-not-allowed">
+                        <span id="btn-text">Process with AI</span>
+                        <svg id="loader" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsDashboard" class="hidden space-y-8">
+                 <div id="error-message" class="hidden bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-lg my-4 text-center"></div>
+
+                <!-- Metadata & Chart -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-lg fade-in">
+                         <h3 class="text-2xl font-semibold mb-4 text-white">AI Generated Metadata</h3>
+                         <div class="space-y-4">
+                            <div>
+                                <h4 class="font-semibold text-blue-400">Generated Short Description</h4>
+                                <p id="ai-summary" class="mt-1 text-gray-300 p-3 bg-gray-700/50 rounded-md"></p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-blue-400">Generated Index Keywords</h4>
+                                <div id="ai-keywords" class="mt-2 flex flex-wrap gap-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-lg fade-in">
+                        <div id="plotly-chart"></div>
+                    </div>
+                </div>
+
+                <!-- DITA Output -->
+                <div class="bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-lg fade-in">
+                    <h3 class="text-2xl font-semibold mb-4 text-white">Final AI-Enhanced DITA XML</h3>
+                    <pre><code id="dita-output" class="code-block language-xml">Your generated DITA XML will appear here...</code></pre>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // DOM Element References
+        const sourceTextInput = document.getElementById('sourceText');
+        const fileInput = document.getElementById('fileInput');
+        const statusArea = document.getElementById('statusArea');
+        const processBtn = document.getElementById('processBtn');
+        const btnText = document.getElementById('btn-text');
+        const loader = document.getElementById('loader');
+        const resultsDashboard = document.getElementById('resultsDashboard');
+        const errorMessageDiv = document.getElementById('error-message');
+        const aiSummaryP = document.getElementById('ai-summary');
+        const aiKeywordsDiv = document.getElementById('ai-keywords');
+        const ditaOutputCode = document.getElementById('dita-output');
+        const chartDiv = document.getElementById('plotly-chart');
+
+        processBtn.addEventListener('click', async () => {
+            let sourceText = sourceTextInput.value.trim();
+            let file = fileInput.files[0];
+            if (!sourceText && !file) {
+                alert("Please provide text or upload a file.");
+                return;
+            }
+
+            toggleLoading(true);
+            setStatus('Project running: Uploading and processing...');
+            try {
+                let response;
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    response = await fetch('/process_file', {
+                        method: 'POST',
+                        body: formData
+                    });
+                } else {
+                    response = await fetch('/process', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: sourceText })
+                    });
+                }
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'An unknown server error occurred.');
+                }
+                const data = await response.json();
+                updateDashboard(data);
+                setStatus('Project complete!');
+            } catch (error) {
+                showError(error.message);
+                setStatus('Project failed: ' + error.message);
+            } finally {
+                toggleLoading(false);
+            }
+        });
+        
+        function updateDashboard(data) {
+            errorMessageDiv.style.display = 'none'; // Hide error on success
+            resultsDashboard.style.display = 'block';
+
+            // Populate metadata
+            aiSummaryP.textContent = data.summary;
+            aiKeywordsDiv.innerHTML = ''; // Clear previous keywords
+            data.keywords.forEach(kw => {
+                const pill = document.createElement('span');
+                pill.className = 'keyword-pill';
+                pill.textContent = kw;
+                aiKeywordsDiv.appendChild(pill);
+            });
+            
+            ditaOutputCode.textContent = data.dita_xml;
+            Prism.highlightElement(ditaOutputCode);
+
+            // Render the Plotly chart
+            const chartData = JSON.parse(data.chart_json);
+            Plotly.newPlot(chartDiv, chartData.data, chartData.layout, {responsive: true});
+        }
+
+        function toggleLoading(isLoading) {
+            if (isLoading) {
+                processBtn.disabled = true;
+                btnText.style.display = 'none';
+                loader.style.display = 'inline-block';
+                resultsDashboard.style.display = 'none';
+                errorMessageDiv.style.display = 'none';
+            } else {
+                processBtn.disabled = false;
+                btnText.style.display = 'inline-block';
+                loader.style.display = 'none';
+            }
+        }
+
+        function showError(message) {
+            resultsDashboard.style.display = 'block';
+            errorMessageDiv.textContent = `Error: ${message}`;
+            errorMessageDiv.style.display = 'block';
+        }
+
+        function setStatus(msg) {
+            statusArea.textContent = msg;
+        }
+
+        // sample text testing
+        sourceTextInput.value = `The Power of AI in Technical Documentation\nThe integration of Artificial Intelligence (AI) into the realm of automatic technical documentation offers a multitude of advantages, significantly streamlining a traditionally labor-intensive process. One primary benefit is the dramatic improvement in efficiency and speed. AI-powered tools can analyze vast amounts of data, including codebases, design specifications, and user feedback, to generate documentation rapidly. This not only accelerates the documentation lifecycle but also frees up human technical writers to focus on more complex tasks requiring critical thinking, creativity, and deeper subject matter expertise, rather than repetitive data extraction and drafting.\n\nFurthermore, AI enhances the accuracy and consistency of technical documentation. Human error, inconsistencies in terminology, and omissions are common challenges in manual documentation. AI algorithms, however, can enforce strict adherence to style guides, glossaries, and factual correctness across all generated content. This leads to a more uniform and reliable set of documents, reducing ambiguities and improving the overall user experience for those relying on the documentation for product understanding or troubleshooting. The ability of AI to learn from existing high-quality documentation also ensures that new content aligns with established best practices.\n\nFinally, AI contributes to the dynamic adaptability and personalization of technical documentation. With AI, documentation can be automatically updated in real-time as product features evolve, code changes, or new insights emerge from user interactions. This eliminates the problem of outdated documentation, which can be a significant source of frustration for users. Moreover, AI can tailor documentation to specific user roles, skill levels, or even individual queries, providing a personalized and highly relevant information experience. This level of dynamic content delivery ensures that users always receive the most pertinent and up-to-date information precisely when and how they need it.`;
+
+    </script>
+</body>
+</html>

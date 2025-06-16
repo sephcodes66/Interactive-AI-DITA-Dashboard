@@ -1,0 +1,4 @@
+venv/
+.env
+sample.txt
+sample.md
